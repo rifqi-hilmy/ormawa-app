@@ -19,22 +19,34 @@ class UserDosenController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $dosen = User::where('roles', 'dosen')->with('dosen.prodi');
+        // if ($request->ajax()) {
+        //     $dosen = User::where('roles', 'dosen')->with('dosen.prodi');
 
-            if ($request->filled('prodi_id')) {
-                $dosen->whereHas('dosen', function ($query) use ($request) {
-                    $query->where('id_prodi', $request->prodi_id);
-                });
-            }
+        //     if ($request->filled('prodi_id')) {
+        //         $dosen->whereHas('dosen', function ($query) use ($request) {
+        //             $query->where('id_prodi', $request->prodi_id);
+        //         });
+        //     }
 
-            $dosen = $dosen->get();
+        //     $dosen = $dosen->get();
 
-            return ResponseFormatter::success($dosen, 'Data dosen berhasil diambil');
+        //     return ResponseFormatter::success($dosen, 'Data dosen berhasil diambil');
+        // }
+
+        // $prodi = Prodi::orderBy('nama_prodi', 'ASC')->get();
+        // return view('pages.admin.user_dosen.index', compact('prodi'));
+        $query = User::where('roles', 'dosen')->with('dosen.prodi');
+
+        if ($request->has('prodi') && $request->prodi != '') {
+            $query->whereHas('dosen.prodi', function ($q) use ($request) {
+                $q->where('id', $request->prodi);
+            });
         }
 
+        $dosen = $query->get();
         $prodi = Prodi::orderBy('nama_prodi', 'ASC')->get();
-        return view('pages.admin.user_dosen.index', compact('prodi'));
+
+        return view('pages.admin.user_dosen.index', compact('dosen', 'prodi'));
     }
 
     /**
