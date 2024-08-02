@@ -18,29 +18,19 @@ class UserMahasiswaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // if ($request->ajax()) {
-        //     $mahasiswa = User::where('roles', 'mahasiswa')->with('mahasiswa.organisasi');
+        $query = User::where('roles', 'mahasiswa')->with('mahasiswa.organisasi');
 
-        //     if ($request->filled('organisasi_id')) {
-        //         $mahasiswa->whereHas('mahasiswa', function ($query) use ($request) {
-        //             $query->where('id_organisasi', $request->organisasi_id);
-        //         });
-        //     }
+        if ($request->has('organisasi') && $request->organisasi != '') {
+            $query->whereHas('mahasiswa.organisasi', function ($q) use ($request) {
+                $q->where('id', $request->organisasi);
+            });
+        }
 
-        //     $mahasiswa = $mahasiswa->get();
-
-        //     return ResponseFormatter::success($mahasiswa, 'Data mahasiswa berhasil diambil');
-        // }
-
-        // $organisasi = Organisasi::orderBy('nama_organisasi', 'ASC')->get();
-        // return view('pages.admin.user_mahasiswa.index', compact('organisasi'));
-
-        // $mahasiswa = User::where('roles', 'mahasiswa')->with('mahasiswa.organisasi');
-        $mahasiswa = User::where('roles', 'mahasiswa')->with('mahasiswa.organisasi')->get();
-        // dd($mahasiswa);
+        $mahasiswa = $query->get();
         $organisasi = Organisasi::orderBy('nama_organisasi', 'ASC')->get();
+
         return view('pages.admin.user_mahasiswa.index', compact('mahasiswa', 'organisasi'));
     }
 

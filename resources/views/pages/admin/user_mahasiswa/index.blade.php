@@ -26,7 +26,7 @@
                             <select id="filter-organisasi" class="form-control select2">
                                 <option value="">Semua Organisasi</option>
                                 @foreach ($organisasi as $org)
-                                    <option value="{{ $org->id }}">{{ $org->nama_organisasi }}</option>
+                                    <option value="{{ $org->id }}" {{ request('organisasi') == $org->id ? 'selected' : '' }}>{{ $org->nama_organisasi }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -70,7 +70,7 @@
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $mhs->id }}">
                                                 <li><a class="dropdown-item btn-edit" href="{{ route('admin.mahasiswa.edit', $mhs->id) }}"
                                                         data-id="{{ $mhs->id }}"><i class="bx bx-edit"></i> Edit</a></li>
-                                                <li><a class="dropdown-item btn-delete" href="{{ route('admin.mahasiswa.destroy') }}"
+                                                <li><a class="dropdown-item btn-delete" href=" #"
                                                         data-id="{{ $mhs->id }}"><i class="bx bx-trash"></i> Delete</a></li>
                                             </ul>
                                         </div>
@@ -93,145 +93,79 @@
                 placeholder: 'Pilih Organisasi',
                 allowClear: true
             });
+
             $('#table-user-mahasiswa').DataTable({
                 "language": {
                             "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Indonesian.json"
                         }
             });
 
-            // var table = $('#table-user-mahasiswa').DataTable({
-            //     ajax: {
-            //         url: "{{ route('admin.mahasiswa.index') }}",
-            //         type: "GET",
-            //         data: function(d) {
-            //             d.organisasi_id = $('#filter-organisasi').val();
-            //         },
-            //         dataSrc: function(json) {
-            //             console.log(json);  // Log the response
-            //             return json.data;  // Ensure 'data' key is correct
-            //         },
-            //         error: function(xhr, status, error) {
-            //             console.log("Error: ", error);
-            //             console.log("Status: ", status);
-            //             console.log("Response: ", xhr.responseText);
-            //         }
-            //     },
-            //     ordering: false,
-            //     processing: true,
-            //     columns: [{
-            //             targets: 0,
-            //             className: 'align-middle',
-            //             data: 'mahasiswa.nim'
-            //         },
-            //         {
-            //             targets: 1,
-            //             className: 'align-middle',
-            //             data: 'name'
-            //         },
-            //         {
-            //             targets: 2,
-            //             className: 'align-middle',
-            //             data: 'mahasiswa.organisasi.nama_organisasi'
-            //         },
-            //         {
-            //             targets: 3,
-            //             className: 'align-middle',
-            //             data: 'email'
-            //         },
-            //         {
-            //             targets: 4,
-            //             width: '15%',
-            //             className: 'align-middle text-center',
-            //             render: function(data, type, row, meta) {
-            //             return `
-            //                 <div class="dropdown">
-            //                     <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
-            //                         Aksi
-            //                     </button>
-            //                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${row.id}">
-            //                         <li><a class="dropdown-item btn-edit" href="#" data-id="${row.id}"><i class="bx bx-edit"></i> Edit</a></li>
-            //                         <li><a class="dropdown-item btn-delete" href="#" data-id="${row.id}"><i class="bx bx-trash"></i> Delete</a></li>
-            //                     </ul>
-            //                 </div>`;
-            //             }
-            //         },
-            //     ],
-            //     "language": {
-            //         "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Indonesian-Alternative.json"
-            //     }
-            // });
+            $('#filter-organisasi').change(function() {
+                var organisasiId = $(this).val();
+                window.location.href = "{{ route('admin.mahasiswa.index') }}" + "?organisasi=" + organisasiId;
+            });
 
-            // $('#table-user-mahasiswa tbody').on('click', '.btn-edit', function(event) {
-            //     event.preventDefault();
-            //     var data = table.row($(this).parents('tr')).data();
+            $('#table-user-mahasiswa tbody').on('click', '.btn-delete', function(event) {
+                event.preventDefault();
+                var mahasiswaId = $(this).data('id');
 
-            //     var path = "{{ route('admin.mahasiswa.edit', ':slug') }}";
-            //     var link = path.replace(':slug', data.id);
+                Swal.fire({
+                    title: 'Apakah anda yakin ingin menghapus data?',
+                    text: '',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus data!',
+                    cancelButtonText: 'Tidak',
+                    customClass: {
+                        confirmButton: 'btn btn-danger',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                }).then((result) => {
+                    if (result.value) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "{{ route('admin.mahasiswa.destroy') }}",
+                            data: {
+                                id: mahasiswaId,
+                                _token: "{{ csrf_token() }}"
+                            },
+                            dataType: "JSON",
+                            beforeSend: function() {
+                                Swal.showLoading();
+                            },
+                            success: function(response) {
+                                Swal.hideLoading();
 
-            //     location.href = link;
-            // });
+                                Swal.fire({
+                                    title: 'Sukses!',
+                                    text: response.meta.message,
+                                    icon: 'success',
+                                }).then(function() {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.hideLoading();
 
-            // $('#table-user-mahasiswa tbody').on('click', '.btn-delete', function(event) {
-            //     event.preventDefault();
-            //     var data = table.row($(this).parents('tr')).data();
+                                var response = xhr.responseJSON;
 
-            //     Swal.fire({
-            //         title: 'Apakah anda yakin ingin menghapus data?',
-            //         text: '',
-            //         icon: 'warning',
-            //         showCancelButton: true,
-            //         confirmButtonText: 'Ya, hapus data!',
-            //         cancelButtonText: 'Tidak',
-            //         customClass: {
-            //             confirmButton: 'btn btn-danger',
-            //             cancelButton: 'btn btn-secondary'
-            //         },
-            //     }).then((result) => {
-            //         if (result.value) {
-            //             $.ajax({
-            //                 type: "DELETE",
-            //                 url: "{{ route('admin.mahasiswa.destroy') }}",
-            //                 data: {
-            //                     id: data.id,
-            //                     _token: "{{ csrf_token() }}"
-            //                 },
-            //                 dataType: "JSON",
-            //                 beforeSend: function() {
-            //                     Swal.showLoading();
-            //                 },
-            //                 success: function(response) {
-            //                     Swal.hideLoading();
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: response.meta.message,
+                                    icon: 'error',
+                                });
 
-            //                     Swal.fire({
-            //                         title: 'Sukses!',
-            //                         text: response.meta.message,
-            //                         icon: 'success',
-            //                     });
-
-            //                     table.ajax.reload();
-            //                 },
-            //                 error: function(xhr, status, error) {
-            //                     Swal.hideLoading();
-
-            //                     var response = xhr.responseJSON;
-
-            //                     Swal.fire({
-            //                         title: 'Gagal!',
-            //                         text: response.meta.message,
-            //                         icon: 'error',
-            //                     });
-
-            //                     if (response.data) {
-            //                         $.each(response.data, function(i, v) {
-            //                             $("#" + i + "_msg").html(v);
-            //                             $(`[id='${i}']`).addClass("is-invalid");
-            //                         });
-            //                     }
-            //                 }
-            //             });
-            //         }
-            //     });
-            // });
+                                if (response.data) {
+                                    $.each(response.data, function(i, v) {
+                                        $("#" + i + "_msg").html(v);
+                                        $(`[id='${i}']`).addClass("is-invalid");
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            });
 
             // $('#filter-organisasi').change(function() {
             //     table.ajax.reload();
