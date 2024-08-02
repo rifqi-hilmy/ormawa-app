@@ -17,11 +17,17 @@ class UserDirmawaController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        try {
             $dirmawa = User::where('roles', 'dirmawa')->with('dirmawa')->get();
-            return ResponseFormatter::success($dirmawa, 'Data dosen berhasil diambil');
+            // return ResponseFormatter::success($dirmawa, 'Data dirmawa berhasil diambil');
+
+            if ($request->wantsJson()) {
+                return ResponseFormatter::success($dirmawa, 'Data dirmawa berhasil diambil');
+            }
+            return view('pages.admin.user_dirmawa.index', compact('dirmawa'));
+        } catch (\Exception $e) {
+            return ResponseFormatter::error($e->getMessage(), 'Data dirmawa gagal diambil', 500);
         }
-        return view('pages.admin.user_dirmawa.index');
     }
 
     /**
