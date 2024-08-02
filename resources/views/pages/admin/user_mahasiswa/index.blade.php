@@ -76,6 +76,15 @@
                     type: "GET",
                     data: function(d) {
                         d.organisasi_id = $('#filter-organisasi').val();
+                    },
+                    dataSrc: function(json) {
+                        console.log(json);  // Log the response
+                        return json.data;  // Ensure 'data' key is correct
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Error: ", error);
+                        console.log("Status: ", status);
+                        console.log("Response: ", xhr.responseText);
                     }
                 },
                 ordering: false,
