@@ -19,7 +19,7 @@ class MahasiswaAgendaController extends Controller
     {
         $mahasiswaId = Auth::id();
 
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             $agenda = Agenda::with('user')->where('id_user', $mahasiswaId)->get();
             return ResponseFormatter::success($agenda, 'Data agenda berhasil diambil');
         }

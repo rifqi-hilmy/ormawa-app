@@ -12,7 +12,7 @@ class DirmawaProposalController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             $query = Proposal::query();
 
             if ($request->has('status_dosen') && $request->status_dosen !== null) {

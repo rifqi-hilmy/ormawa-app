@@ -18,7 +18,7 @@ class AdminProposalController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             $query = Proposal::query();
 
             if ($request->has('status_dosen') && $request->status_dosen !== null) {
@@ -175,7 +175,7 @@ class AdminProposalController extends Controller
 
     public function arsipProposal(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             $query = Proposal::onlyTrashed();
 
             if ($request->has('status_dosen') && $request->status_dosen !== null) {

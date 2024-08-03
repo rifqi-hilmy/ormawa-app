@@ -20,7 +20,7 @@ class MahasiswaProposalController extends Controller
     {
         $mahasiswaId = Auth::id();
 
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             $query = Proposal::query();
 
             $query->where('id_user', $mahasiswaId);
@@ -181,7 +181,7 @@ class MahasiswaProposalController extends Controller
     {
         $mahasiswaId = Auth::id();
 
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             $query = Proposal::onlyTrashed();
 
             $query->where('id_user', $mahasiswaId);

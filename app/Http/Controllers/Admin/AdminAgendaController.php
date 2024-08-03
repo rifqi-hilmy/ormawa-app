@@ -16,7 +16,7 @@ class AdminAgendaController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             $agenda = Agenda::with('user')->get();
             return ResponseFormatter::success($agenda, 'Data agenda berhasil diambil');
         }
