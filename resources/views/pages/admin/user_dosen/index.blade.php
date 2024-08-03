@@ -26,7 +26,7 @@
                             <select id="filter-prodi" class="form-control select2">
                                 <option value="">Pilih Prodi</option>
                                 @foreach ($prodi as $prod)
-                                    <option value="{{ $prod->id }}" {{ request('prodi') == $prod->id ? 'selected' : '' }}>{{ $prod->nama_prodi }}</option>
+                                    <option value="{{ $prod->id }}">{{ $prod->nama_prodi }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -54,32 +54,7 @@
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($dosen as $dsn)
-                            <tr>
-                                <td>{{ $dsn->dosen->nip }}</td>
-                                <td>{{ $dsn->dosen->nidn }}</td>
-                                <td>{{ $dsn->name }}</td>
-                                <td>{{ $dsn->dosen->prodi->nama_prodi }}</td>
-                                <td>{{ $dsn->email }}</td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle btn-sm" type="button"
-                                            id="dropdownMenuButton{{ $dsn->id }}" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            Aksi
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $dsn->id }}">
-                                            <li><a class="dropdown-item btn-edit" href="{{ route('admin.dosen.edit', $dsn->id) }}" data-id="{{ $dsn->id }}"><i
-                                                    class="bx bx-edit"></i> Edit</a></li>
-                                            <li><a class="dropdown-item btn-delete" href="#" data-id="{{ $dsn->id }}"><i
-                                                    class="bx bx-trash"></i> Delete</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -96,20 +71,77 @@
                 allowClear: true
             });
 
-            $('#table-user-dosen').DataTable({
-                "language": {
-                            "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Indonesian.json"
+            var table = $('#table-user-dosen').DataTable({
+                ajax: {
+                    url: "{{ route('admin.dosen.index') }}",
+                    type: "GET",
+                    data: function(d) {
+                        d.prodi_id = $('#filter-prodi').val();
+                    }
+                },
+                ordering: false,
+                processing: true,
+                columns: [{
+                        targets: 0,
+                        className: 'align-middle',
+                        data: 'dosen.nip'
+                    },
+                    {
+                        targets: 1,
+                        className: 'align-middle',
+                        data: 'dosen.nidn'
+                    },
+                    {
+                        targets: 2,
+                        className: 'align-middle',
+                        data: 'name'
+                    },
+                    {
+                        targets: 3,
+                        className: 'align-middle',
+                        data: 'dosen.prodi.nama_prodi'
+                    },
+                    {
+                        targets: 4,
+                        className: 'align-middle',
+                        data: 'email'
+                    },
+                    {
+                        targets: 5,
+                        width: '15%',
+                        className: 'align-middle text-center',
+                        render: function(data, type, row, meta) {
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton${row.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Aksi
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${row.id}">
+                                    <li><a class="dropdown-item btn-edit" href="#" data-id="${row.id}"><i class="bx bx-edit"></i> Edit</a></li>
+                                    <li><a class="dropdown-item btn-delete" href="#" data-id="${row.id}"><i class="bx bx-trash"></i> Delete</a></li>
+                                </ul>
+                            </div>`;
                         }
+                    },
+                ],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Indonesian-Alternative.json"
+                }
             });
 
-            $('#filter-prodi').change(function() {
-                var prodiId = $(this).val();
-                window.location.href = "{{ route('admin.dosen.index') }}" + "?prodi=" + prodiId;
+            $('#table-user-dosen tbody').on('click', '.btn-edit', function(event) {
+                event.preventDefault();
+                var data = table.row($(this).parents('tr')).data();
+
+                var path = "{{ route('admin.dosen.edit', ':slug') }}";
+                var link = path.replace(':slug', data.id);
+
+                location.href = link;
             });
 
             $('#table-user-dosen tbody').on('click', '.btn-delete', function(event) {
                 event.preventDefault();
-                var dosenId = $(this).data('id');
+                var data = table.row($(this).parents('tr')).data();
 
                 Swal.fire({
                     title: 'Apakah anda yakin ingin menghapus data?',
@@ -128,7 +160,7 @@
                             type: "DELETE",
                             url: "{{ route('admin.dosen.destroy') }}",
                             data: {
-                                id: dosenId,
+                                id: data.id,
                                 _token: "{{ csrf_token() }}"
                             },
                             dataType: "JSON",
@@ -142,9 +174,9 @@
                                     title: 'Sukses!',
                                     text: response.meta.message,
                                     icon: 'success',
-                                }).then(() => {
-                                    window.location.reload();
                                 });
+
+                                table.ajax.reload();
                             },
                             error: function(xhr, status, error) {
                                 Swal.hideLoading();
@@ -167,6 +199,10 @@
                         });
                     }
                 });
+            });
+
+            $('#filter-prodi').change(function() {
+                table.ajax.reload();
             });
 
         });
