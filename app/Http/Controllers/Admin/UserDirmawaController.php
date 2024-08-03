@@ -15,19 +15,10 @@ class UserDirmawaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        try {
-            $dirmawa = User::where('roles', 'dirmawa')->with('dirmawa')->get();
-            // return ResponseFormatter::success($dirmawa, 'Data dirmawa berhasil diambil');
-
-            if ($request->wantsJson()) {
-                return ResponseFormatter::success($dirmawa, 'Data dirmawa berhasil diambil');
-            }
-            return view('pages.admin.user_dirmawa.index', compact('dirmawa'));
-        } catch (\Exception $e) {
-            return ResponseFormatter::error($e->getMessage(), 'Data dirmawa gagal diambil', 500);
-        }
+        $dirmawa = User::where('roles', 'dirmawa')->with('mahasiswa.organisasi')->get();
+        return view('pages.admin.user_dirmawa.index', compact('dirmawa'));
     }
 
     /**
