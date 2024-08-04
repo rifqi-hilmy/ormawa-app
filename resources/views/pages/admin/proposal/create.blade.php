@@ -44,8 +44,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label for="surat_pengantar">Surat Pengantar<span class="text-danger">*</span></label>
-                            <input type="file" class="form-control" name="surat_pengantar" id="surat_pengantar" required>
+                            <label for="surat_pengantar">Surat Pengantar</label>
+                            <input type="file" class="form-control" name="surat_pengantar" id="surat_pengantar">
                             <span class="invalid-feedback">
                                 <strong id="surat_pengantar_msg"></strong>
                             </span>
@@ -64,8 +64,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label for="lampiran_proposal">Lampiran Proposal<span class="text-danger">*</span></label>
-                            <input type="file" class="form-control" name="lampiran_proposal" id="lampiran_proposal" required>
+                            <label for="lampiran_proposal">Lampiran Proposal</label>
+                            <input type="file" class="form-control" name="lampiran_proposal" id="lampiran_proposal">
                             <span class="invalid-feedback">
                                 <strong id="lampiran_proposal_msg"></strong>
                             </span>

@@ -60,4 +60,9 @@ class Proposal extends Model
     {
         return $this->lampiran_proposal ? asset('storage/' . $this->lampiran_proposal) : null;
     }
+
+    public function agenda()
+    {
+        return $this->hasOne(Agenda::class, 'id_proposal', 'id');
+    }
 }

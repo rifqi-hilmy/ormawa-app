@@ -55,17 +55,17 @@ class AdminProposalController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'tgl_kegiatan' => 'required|date',
-            'surat_pengantar' => 'required|file|mimes:pdf,doc,docx|max:2048',
+            'surat_pengantar' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
             'file_proposal' => 'required|file|mimes:pdf,doc,docx|max:2048',
-            'lampiran_proposal' => 'required|file|mimes:pdf,doc,docx|max:2048',
+            'lampiran_proposal' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
             'id_dosen' => 'nullable|exists:dosen,id',
             'id_dirmawa' => 'nullable|exists:users,id',
         ]);
 
         try {
-            $suratPengantarPath = $request->file('surat_pengantar')->store('proposals/surat_pengantar', 'public');
+            $suratPengantarPath = $request->file('surat_pengantar') ? $request->file('surat_pengantar')->store('proposals/surat_pengantar', 'public') : null;
             $fileProposalPath = $request->file('file_proposal')->store('proposals/file_proposal', 'public');
-            $lampiranProposalPath = $request->file('lampiran_proposal')->store('proposals/lampiran_proposal', 'public');
+            $lampiranProposalPath = $request->file('lampiran_proposal') ? $request->file('lampiran_proposal')->store('proposals/lampiran_proposal', 'public') : null;
 
             $proposal = Proposal::create([
                 'judul' => $request->judul,
