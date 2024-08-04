@@ -22,12 +22,26 @@
             <form id="form-tambah" class="mt-3">
                 @csrf
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label for="nama_agenda">Agenda<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="nama_agenda" id="nama_agenda" required>
                             <span class="invalid-feedback">
                                 <strong id="nama_agenda_msg"></strong>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="id_proposal">Proposal</label>
+                            <select class="form-control select2" name="id_proposal" id="id_proposal">
+                                <option value="">Pilih Proposal</option>
+                                @foreach ($proposal as $pro)
+                                    <option value="{{ $pro->id }}">{{ $pro->judul }}</option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback">
+                                <strong id="proposal_msg"></strong>
                             </span>
                         </div>
                     </div>
@@ -109,6 +123,12 @@
 @push('script')
     <script>
         $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Pilih Proposal',
+                allowClear: true
+            });
+
             $('#form-tambah').submit(function(e) {
                 e.preventDefault();
 

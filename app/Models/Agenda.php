@@ -20,10 +20,16 @@ class Agenda extends Model
         'jam_selesai',
         'keterangan',
         'id_user',
+        'id_proposal',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id');
+    }
+
+    public function proposal()
+    {
+        return $this->belongsTo(Proposal::class, 'id_proposal', 'id');
     }
 }

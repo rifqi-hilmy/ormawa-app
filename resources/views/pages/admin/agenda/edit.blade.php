@@ -23,13 +23,30 @@
                 @csrf
                 @method('PUT')
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label for="nama_agenda">Agenda<span class="text-danger">*</span></label>
                             <input type="hidden" name="id" id="id" value="{{ $agenda->id }}">
                             <input type="text" class="form-control" name="nama_agenda" id="nama_agenda" value="{{ $agenda->nama_agenda }}" required>
                             <span class="invalid-feedback">
                                 <strong id="nama_agenda_msg"></strong>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="id_proposal">Proposal</label>
+                            <select class="form-control select2" name="id_proposal" id="id_proposal">
+                                <option value="">Pilih Prodi</option>
+                                @foreach ($proposal as $pro)
+                                    <option value="{{ $pro->id }}"
+                                        {{ $agenda->id_proposal == $pro->id ? 'selected' : '' }}>
+                                        {{ $pro->judul }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="invalid-feedback">
+                                <strong id="proposal_msg"></strong>
                             </span>
                         </div>
                     </div>
@@ -111,6 +128,12 @@
 @push('script')
     <script>
         $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Pilih Proposal',
+                allowClear: true
+            });
+
             $('#form-edit').submit(function(e) {
                 e.preventDefault();
 

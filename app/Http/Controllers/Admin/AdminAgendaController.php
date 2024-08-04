@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Agenda;
+use App\Models\Proposal;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +29,12 @@ class AdminAgendaController extends Controller
      */
     public function create()
     {
-        return view('pages.admin.agenda.create');
+        $proposal = Proposal::orderBy('judul', 'ASC')->get();
+        $proposal = $proposal->filter(function ($item) {
+            return $item->status_dirmawa == 'diterima' && $item->status_dosen == 'diterima';
+        });
+
+        return view('pages.admin.agenda.create', compact('proposal'));
     }
 
     /**
@@ -45,6 +51,7 @@ class AdminAgendaController extends Controller
                 'jam_mulai' => 'required',
                 'jam_selesai' => 'nullable',
                 'keterangan' => 'nullable|string',
+                'id_proposal' => 'nullable|exists:proposal,id',
             ]);
 
             $tgl_mulai = \Carbon\Carbon::parse($request->tgl_mulai)->format('Y-m-d');
@@ -59,6 +66,7 @@ class AdminAgendaController extends Controller
                 'jam_selesai' => $request->jam_selesai,
                 'keterangan' => $request->keterangan,
                 'id_user' => auth()->user()->id,
+                'id_proposal' => $request->id_proposal,
             ]);
 
             return ResponseFormatter::success($agenda, 'Agenda berhasil ditambahkan');
@@ -83,7 +91,11 @@ class AdminAgendaController extends Controller
     public function edit(string $id)
     {
         $agenda = Agenda::findOrFail($id);
-        return view('pages.admin.agenda.edit', compact('agenda'));
+        $proposal = Proposal::orderBy('judul', 'ASC')->get();
+        $proposal = $proposal->filter(function ($item) {
+            return $item->status_dirmawa == 'diterima' && $item->status_dosen == 'diterima';
+        });
+        return view('pages.admin.agenda.edit', compact('agenda', 'proposal'));
     }
 
     /**
@@ -102,6 +114,7 @@ class AdminAgendaController extends Controller
                 'jam_mulai' => 'required',
                 'jam_selesai' => 'nullable',
                 'keterangan' => 'nullable|string',
+                'id_proposal' => 'nullable|exists:proposal,id',
             ]);
 
             $tgl_mulai = \Carbon\Carbon::parse($request->tgl_mulai)->format('Y-m-d');
@@ -116,6 +129,7 @@ class AdminAgendaController extends Controller
                 'jam_selesai' => $request->jam_selesai,
                 'keterangan' => $request->keterangan,
                 'id_user' => auth()->user()->id,
+                'id_proposal' => $request->id_proposal,
             ]);
 
             return ResponseFormatter::success($agenda, 'Agenda berhasil diubah');
